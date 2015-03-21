@@ -5,15 +5,11 @@
 
 from os import system
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-try:
-    # For Python 3.0 and later
-    from http.server import HTTPServer
-    from http.server import BaseHTTPRequestHandler
-except ImportError:
-    # Fall back to Python 2
-    from BaseHTTPServer import BaseHTTPRequestHandler
-    from BaseHTTPServer import HTTPServer as HTTPServer
+from BaseHTTPServer import BaseHTTPRequestHandler
+from BaseHTTPServer import HTTPServer as HTTPServer
+from SocketServer import ThreadingMixIn
 import sys
+import threading
 
 
 class RequestHandler(BaseHTTPRequestHandler):
@@ -22,6 +18,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         image, token = self.path[1:].split("/")
         if args.token == token and image:
             cmd = " ".join(args.cmd)
+            print "Running: %s %s" % (cmd, image)
             system("%s %s" % (cmd, image))
             self.send_response(200, "OK")
         else:
@@ -57,9 +54,14 @@ def get_parser():
     return parser
 
 
+class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+    """Handle requests in a separate thread."""
+
+
 def main(addr, port):
     """Start a HTTPServer which waits for requests."""
-    httpd = HTTPServer((addr, port), RequestHandler)
+    httpd = ThreadedHTTPServer((addr, port), RequestHandler)
+    print "Running on", addr, port
     httpd.serve_forever()
 
 if __name__ == '__main__':
