@@ -19,9 +19,10 @@ import sys
 class RequestHandler(BaseHTTPRequestHandler):
     """A POST request handler which expects a token in its path."""
     def do_POST(self):
-        print(self.path)
-        if args.token in self.path:
-            system(" ".join(args.cmd))
+        image, token = self.path[1:].split("/")
+        if args.token == token and image:
+            cmd = " ".join(args.cmd)
+            system("%s %s" % (cmd, image))
             self.send_response(200, "OK")
         else:
             self.send_response(401, "Not authorized")
