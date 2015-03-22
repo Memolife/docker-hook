@@ -10,7 +10,7 @@ from BaseHTTPServer import HTTPServer as HTTPServer
 from SocketServer import ThreadingMixIn
 import sys
 import threading
-
+    
 
 class RequestHandler(BaseHTTPRequestHandler):
     """A POST request handler which expects a token in its path."""
